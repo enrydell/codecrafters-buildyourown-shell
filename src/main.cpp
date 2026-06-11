@@ -4,12 +4,14 @@
 
 enum Command {
   CMD_UNKNOWN,
-  CMD_EXIT
+  CMD_EXIT,
+  CMD_ECHO
 };
 
 Command resolveCommand(const std::string& input) {
   static const std::map<std::string, Command> commandMap = {
-    {"exit", CMD_EXIT}
+    {"exit", CMD_EXIT},
+    {"echo", CMD_ECHO}
   };
   
   auto it = commandMap.find(input);
@@ -35,6 +37,9 @@ int main() {
     switch (resolveCommand(command)) {
       case CMD_EXIT:
         exit(0);
+        break;
+      case CMD_ECHO:
+        std::cout << fullCommand.substr(fullCommand.find(' ') + 1) << std::endl;
         break;
       default:
         std::cerr << command << ": command not found" << std::endl;
