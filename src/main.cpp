@@ -28,7 +28,7 @@ void evalBuiltIn(const std::string& command, const std::string& args) {
   std::string cmd = command + " " + args;
 
   if (resolveCommand(args) == CMD_UNKNOWN) {
-    std::cout << args << ": command not found" << std::endl;
+    std::cout << args << ": not found" << std::endl;
     return;
   }
 
