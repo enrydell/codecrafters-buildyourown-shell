@@ -17,6 +17,20 @@ enum Command {
   CMD_TYPE
 };
 
+Command resolveCommand(const std::string &input) {
+  static const std::map<std::string, Command> commandMap = {
+      {"exit", CMD_EXIT},
+      {"echo", CMD_ECHO},
+      {"type", CMD_TYPE}};
+
+  auto it = commandMap.find(input);
+  if (it != commandMap.end()) {
+    return it->second;
+  }
+
+  return CMD_UNKNOWN;
+}
+
 void evalBuiltIn(const std::string &command, const std::string &args) {
   std::string cmd = command + " " + args;
 
@@ -57,20 +71,6 @@ void evalBuiltIn(const std::string &command, const std::string &args) {
   }
 
   std::cout << args << ": not found" << std::endl;
-}
-
-Command resolveCommand(const std::string &input) {
-  static const std::map<std::string, Command> commandMap = {
-      {"exit", CMD_EXIT},
-      {"echo", CMD_ECHO},
-      {"type", CMD_TYPE}};
-
-  auto it = commandMap.find(input);
-  if (it != commandMap.end()) {
-    return it->second;
-  }
-
-  return CMD_UNKNOWN;
 }
 
 void executeCommand(const std::string &command, const std::string &args) {
