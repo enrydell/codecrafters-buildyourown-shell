@@ -17,27 +17,8 @@ enum Command {
   CMD_TYPE
 };
 
-Command resolveCommand(const std::string &input) {
-  static const std::map<std::string, Command> commandMap = {
-      {"exit", CMD_EXIT},
-      {"echo", CMD_ECHO},
-      {"type", CMD_TYPE}};
-
-  auto it = commandMap.find(input);
-  if (it != commandMap.end()) {
-    return it->second;
-  }
-
-  return CMD_UNKNOWN;
-}
-
 void evalBuiltIn(const std::string &command, const std::string &args) {
   std::string cmd = command + " " + args;
-
-  // if (resolveCommand(args) == CMD_UNKNOWN) {
-  //   std::cout << args << ": not found" << std::endl;
-  //   return;
-  // }
 
   if (resolveCommand(args) == CMD_ECHO || resolveCommand(args) == CMD_EXIT || resolveCommand(args) == CMD_TYPE) {
     FILE *pipe = popen(cmd.c_str(), "r");
@@ -60,9 +41,6 @@ void evalBuiltIn(const std::string &command, const std::string &args) {
     while (start <= paths.size()) {
       std::size_t end = paths.find(PATH_DELIMITER, start);
       std::string directory = paths.substr(start, end - start);
-      // if (directory.empty()) {
-      //   directory = ".";
-      // }
 
       std::string commandPath = directory + "/" + args;
       if (access(commandPath.c_str(), X_OK) == 0) {
@@ -81,6 +59,39 @@ void evalBuiltIn(const std::string &command, const std::string &args) {
   std::cout << args << ": not found" << std::endl;
 }
 
+Command resolveCommand(const std::string &input) {
+  static const std::map<std::string, Command> commandMap = {
+      {"exit", CMD_EXIT},
+      {"echo", CMD_ECHO},
+      {"type", CMD_TYPE}};
+
+  auto it = commandMap.find(input);
+  if (it != commandMap.end()) {
+    return it->second;
+  }
+
+  return CMD_UNKNOWN;
+}
+
+void executeCommand(const std::string &command, const std::string &args) {
+  Command cmd = resolveCommand(command);
+
+  switch (cmd) {
+    case CMD_EXIT:
+      std::exit(0);
+      break;
+    case CMD_ECHO:
+      std::cout << args << std::endl;
+      break;
+    case CMD_TYPE:
+      evalBuiltIn(command, args);
+      break;
+    default:
+      std::cerr << command << ": command not found" << std::endl;
+      break;
+  }
+}
+
 int main() {
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
@@ -94,18 +105,6 @@ int main() {
     std::string command = fullCommand.substr(0, fullCommand.find(' '));
     std::string args = fullCommand.substr(fullCommand.find(' ') + 1);
 
-    switch (resolveCommand(command)) {
-      case CMD_EXIT:
-        exit(0);
-        break;
-      case CMD_ECHO:
-        std::cout << args << std::endl;
-        break;
-      case CMD_TYPE:
-        evalBuiltIn(command, args);
-        break;
-      default:
-        std::cerr << command << ": command not found" << std::endl;
-    }
+    executeCommand(command, args);
   }
 }
